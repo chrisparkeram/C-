@@ -1,0 +1,180 @@
+using System;
+
+public class CitaMedica
+{
+    public string Documento { get; set; }
+    public string Nombre { get; set; }
+    public string Doctor { get; set; }
+    public string Consultorio { get; set; }
+    public DateTime Horario { get; set; }
+
+    public CitaMedica(string documento, string nombre, string doctor, string consultorio, DateTime horario)
+    {
+        Documento = documento;
+        Nombre = nombre;
+        Doctor = doctor;
+        Consultorio = consultorio;
+        Horario = horario;
+    }
+
+    public override string ToString()
+    {
+        return $"{Nombre} - {Doctor} - {Consultorio} - {Horario.ToString("g")}";
+    }
+}
+
+ejemplo formulario
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+
+namespace AgendadorCitas
+{
+    public partial class Form1 : Form
+    {
+        private List<CitaMedica> citas = new List<CitaMedica>();
+
+        public Form1()
+        {
+            InitializeComponent();
+            CargarDoctores();
+            CargarConsultorios();
+        }
+
+        private void CargarDoctores()
+        {
+            comboBoxDoctor.Items.Add("Dr. Pérez");
+            comboBoxDoctor.Items.Add("Dra. López");
+            comboBoxDoctor.Items.Add("Dr. García");
+        }
+
+        private void CargarConsultorios()
+        {
+            comboBoxConsultorio.Items.Add("Consultorio 101");
+            comboBoxConsultorio.Items.Add("Consultorio 102");
+            comboBoxConsultorio.Items.Add("Consultorio 103");
+        }
+
+        private void btnGuardar_Click(object sender, EventArgs e)
+        {
+            string documento = txtDocumento.Text;
+            string nombre = txtNombre.Text;
+            string doctor = comboBoxDoctor.SelectedItem.ToString();
+            string consultorio = comboBoxConsultorio.SelectedItem.ToString();
+            DateTime horario = dateTimePickerHorario.Value;
+
+            CitaMedica cita = new CitaMedica(documento, nombre, doctor, consultorio, horario);
+            citas.Add(cita);
+
+            listBoxCitas.Items.Add(cita.ToString());
+
+            // Limpiar campos después de guardar
+            txtDocumento.Clear();
+            txtNombre.Clear();
+            comboBoxDoctor.SelectedIndex = -1;
+            comboBoxConsultorio.SelectedIndex = -1;
+            dateTimePickerHorario.Value = DateTime.Now;
+        }
+    }
+}
+3. Descripción de la Interfaz
+TextBox: Para ingresar el documento y nombre del paciente.
+ComboBox: Para seleccionar el doctor y el consultorio.
+DateTimePicker: Para seleccionar el horario de la cita.
+Button: Para guardar la cita.
+ListBox: Para mostrar una lista de todas las citas agendadas.
+4. Agregar validaciones
+Para mejorar la aplicación, puedes agregar validaciones para asegurarte de que todos los campos estén completos antes de guardar la cita.
+private void btnGuardar_Click(object sender, EventArgs e)
+{
+    if (string.IsNullOrEmpty(txtDocumento.Text) || 
+        string.IsNullOrEmpty(txtNombre.Text) || 
+        comboBoxDoctor.SelectedIndex == -1 || 
+        comboBoxConsultorio.SelectedIndex == -1)
+    {
+        MessageBox.Show("Por favor, complete todos los campos antes de guardar la cita.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return;
+    }
+
+    // Resto del código para guardar la cita...
+}
+segun lo anterior como veo que al dar click en el boton guardar se vea en el listbox las citas guardadas ?
+ChatGPT dijo:
+ChatGPT
+Para que las citas guardadas se visualicen en el ListBox al hacer clic en el botón "Guardar", debes asegurarte de que cada vez que se agrega una nueva cita a la lista, se actualice el ListBox con la representación en texto de esa cita.
+
+Paso a Paso
+Asegúrate de tener un ListBox en tu formulario: En el diseñador de Windows Forms, arrastra un ListBox desde la caja de herramientas a tu formulario. Asigna un nombre a este ListBox, por ejemplo, listBoxCitas.
+
+Código para el evento del botón "Guardar": Cuando se hace clic en el botón "Guardar", debes crear una nueva instancia de CitaMedica, agregarla a la lista de citas y luego agregar la representación de esa cita al ListBox.
+
+Ejemplo de Código Actualizado
+Aquí te muestro cómo debería verse el código para el evento btnGuardar_Click:
+private void btnGuardar_Click(object sender, EventArgs e)
+{
+    // Validación de campos
+    if (string.IsNullOrEmpty(txtDocumento.Text) || 
+        string.IsNullOrEmpty(txtNombre.Text) || 
+        comboBoxDoctor.SelectedIndex == -1 || 
+        comboBoxConsultorio.SelectedIndex == -1)
+    {
+        MessageBox.Show("Por favor, complete todos los campos antes de guardar la cita.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        return;
+    }
+
+    // Creación de la nueva cita
+    string documento = txtDocumento.Text;
+    string nombre = txtNombre.Text;
+    string doctor = comboBoxDoctor.SelectedItem.ToString();
+    string consultorio = comboBoxConsultorio.SelectedItem.ToString();
+    DateTime horario = dateTimePickerHorario.Value;
+
+    CitaMedica cita = new CitaMedica(documento, nombre, doctor, consultorio, horario);
+    citas.Add(cita);  // Agregar la cita a la lista
+
+    // Agregar la cita al ListBox
+    listBoxCitas.Items.Add(cita.ToString());
+
+    // Limpiar campos después de guardar
+    LimpiarCampos();
+}
+
+// Método para limpiar los campos
+private void LimpiarCampos()
+{
+    txtDocumento.Clear();
+    txtNombre.Clear();
+    comboBoxDoctor.SelectedIndex = -1;
+    comboBoxConsultorio.SelectedIndex = -1;
+    dateTimePickerHorario.Value = DateTime.Now;
+}
+Desglose del Código
+Validación de Campos: Verificamos que todos los campos necesarios estén llenos. Si alguno está vacío, mostramos un mensaje y salimos del método.
+
+Creación de la Cita: Después de validar, se crea una nueva instancia de CitaMedica con los datos ingresados.
+
+Agregar la Cita a la Lista: La cita se añade a la lista citas, que se ha definido como un List<CitaMedica> para almacenar todas las citas.
+
+Actualizar el ListBox: Se llama a listBoxCitas.Items.Add(cita.ToString()), que agrega la representación de la cita al ListBox. La implementación de ToString() en la clase CitaMedica devuelve una cadena que representa la cita, lo que permite que se muestre de manera legible en el ListBox.
+
+Limpiar los Campos: Al final, se llama al método LimpiarCampos() para reiniciar el formulario, permitiendo que el usuario ingrese una nueva cita sin necesidad de borrar manualmente los campos.
+
+Compilación y Ejecución
+Compila y ejecuta tu aplicación. Al hacer clic en el botón "Guardar", deberías ver que cada nueva cita se agrega y aparece en el ListBox de manera instantánea. Esto te permitirá llevar un control visual de todas las citas que has agendado.
+
+
+
+
+
+
+Dijiste:
+y en los combobox como agrego las opciones a escoger ?
+ChatGPT dijo:
+ChatGPT
+Para agregar opciones a los ComboBox en un formulario de Windows Forms, puedes hacerlo de varias maneras. Aquí te explico cómo agregar elementos de forma manual y también cómo cargar datos desde una fuente externa, como una base de datos o un archivo.
+
+Agregar Opciones Manualmente
+La forma más sencilla de agregar elementos a un ComboBox es hacerlo directamente en el código, ya sea en el constructor del formulario o en el evento de carga del formulario (Load). Aquí hay un ejemplo que complementa el código que ya has visto:
+
+1. Agregar elementos en el constructor del formulario
+En el constructor del formulario (Form1), después de InitializeComponent(), puedes agregar los doctores y consultorios así:
